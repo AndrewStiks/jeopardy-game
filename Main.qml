@@ -7,81 +7,65 @@ ApplicationWindow {
     visible: true
     title: "Своя игра"
 
+    // FontLoader {
+    //     id: gameFont
+    //     source: "qrc:/font/futura.otf"
+    // }
+
+    font.family: "Futura Condensed PT"
+    font.pointSize: 20
+
     background: Rectangle {
         anchors.fill: parent
-        color: "#180088"
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#180088"
+            }
+            GradientStop {
+                position: 1
+                color: "#3011aa"
+            }
+        }
     }
 
-    // Main vertical layout
-    ColumnLayout {
+    StackView {
+        id: stack
         anchors.centerIn: parent
-        spacing: 20
         width: parent.width
+        height: parent.height * 0.8
 
-        Text {
-            text: "Своя Игра"
-            Layout.alignment: Qt.AlignHCenter
-            horizontalAlignment: Text.AlignHCenter
-            color: "white"
-            font.pointSize: 50
+        initialItem: startPage
+    }
+
+    property string code: "value"
+    property var questions: []
+    property int categories: 3
+    property int qstnNum: 3
+
+    property int thisPlayerNum: 0
+    property int currentMove: 0
+
+
+    ListModel {
+        id: players
+        ListElement {
+            playerId: 0
+            playerName: "Вед"
         }
+    }
 
-        TextField {
-            id: codeInput
-            width: 800
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: parent.width / 2
-            color: "white"
-            placeholderText: "Введите код"
-            placeholderTextColor: "white"
-        }
-
-        Button {
-            id: myButton
-            text: "Join Game"
-            enabled: codeInput.text.length > 0
-            onClicked: {
-                console.log("Joining game with code: " + codeInput.text)
-                // Add logic to join the game using the code
-            }
-
-            Layout.alignment: Qt.AlignHCenter
-            contentItem: Text {
-                text: myButton.text
-                color: "red"  // Set the text color here
-                font: myButton.font
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
-
-        }
-
-        Button {
-            text: "Start New Game"
-            enabled: socket.status == WebSocket.Open
-            onClicked: {
-                var newCode = generateGameCode()
-                console.log("New game started with code: " + newCode)
-                newGameCode.text = "Game Code: " + newCode
-                // Add logic to start a new game and generate a code
-                if (socket.status == WebSocket.Open) {
-                    socket.sendTextMessage(newCode)
-                }
-            }
-
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        Label {
-            id: newGameCode
-            text: "Game Code: -"
-            color: "white"
-            Layout.alignment: Qt.AlignHCenter
-        }
+    StartPage {
+        id: startPage
+    }
+    GamePage {
+        id: gamePage
+        visible: false
     }
 
     Row {
         spacing: 10
+        anchors.bottom: parent.bottom
         Label {
             id: connectionLbl
             text: socket.status == WebSocket.Open ? "connected" : "disconnected"
@@ -93,18 +77,60 @@ ApplicationWindow {
             height: 10
             radius: 5
         }
-
         Button {
             text: "Connect"
-            onClicked: socket.active = true
+            onClicked: {
+                if (socket.active) {
+                    socket.active = false
+                    socket.active = true
+                }
+            }
         }
     }
 
     WebSocket {
         id: socket
-        url: "ws://192.168.3.69:8080"
+        url: "ws://195.135.253.4:8080"
+        // url: "ws://192.168.3.69:8080"
         onTextMessageReceived: function(message) {
-            connectionLbl.text = connectionLbl.text + "\nReceived message: " + message
+            connectionLbl.text = "Received message: " + message.slice(0, 10)
+            console.log(message)
+
+            const str = message.toString().split(":")
+            const op = str[0]
+            const msg = str[1] || ""
+
+            switch(op) {
+            case "code": {
+                code = message.split("code: ")[1]
+                stack.push(gamePage)
+                break;
+            }
+            case "questions": {
+                questions = JSON.parse(message.split("questions: ")[1])
+                gamePage.populateGrid()
+                break;
+            }
+            case "this": {
+                thisPlayerNum = parseInt(msg)
+                break;
+            }
+            case "current": {
+                currentMove = parseInt(msg)
+                console.log(currentMove)
+                break;
+            }
+            case "players": {
+                for (var i = players.count; players.count < parseInt(msg); i++) {
+                    players.append({playerId: i, playerName: "Игр " + i})
+                }
+
+                break;
+            }
+
+            default:
+                console.log(op, msg)
+            }
         }
         onStatusChanged: if (socket.status == WebSocket.Error) {
                              console.log("Error: " + socket.errorString)
@@ -113,16 +139,6 @@ ApplicationWindow {
                          } else if (socket.status == WebSocket.Closed) {
                              connectionLbl.text += "\nSocket closed"
                          }
-        active: false
-    }
-
-    // Function to generate a random game code
-    function generateGameCode() {
-        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let text = "";
-        for (let i = 0; i < 6; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        return text;
+        active: true
     }
 }

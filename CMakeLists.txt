@@ -19,6 +19,15 @@ qt_add_qml_module(appClickerTest
     VERSION 1.0
     QML_FILES
         Main.qml
+        QML_FILES StartPage.qml
+        QML_FILES GamePage.qml
+        RESOURCES font/futura.otf
+)
+
+qt_add_resources(appClickerTest "app_font"
+    PREFIX "/"
+    FILES
+        font/futura.otf
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
