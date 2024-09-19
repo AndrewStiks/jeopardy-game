@@ -67,7 +67,10 @@ wss.on('connection', function connection(ws) {
 
           const currentMove = Array.from(games[idx].players).indexOf(Array.from(playersCopy)[Math.floor(Math.random()*playersCopy.size)])
           games[idx].currentMove = currentMove
-          ws.send("current: " + currentMove)
+          // ws.send("current: " + currentMove)
+	  Array.from(games[idx].players).forEach(x => {
+            x.send("current: " + currentMove)
+          })
           // new Set().size
         } else {
           ws.send("error")
