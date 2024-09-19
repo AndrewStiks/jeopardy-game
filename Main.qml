@@ -136,7 +136,7 @@ ApplicationWindow {
             case "current": { //принимаем номер игрока текущего
                 currentMove = parseInt(msg)
                 console.log("current: " + currentMove)
-                if (stack.depth > 2) {
+                if (stack.depth > 2) { //глубина стека 3 если 
                     stack.pop()
                 }
 
