@@ -23,7 +23,7 @@ Page {
             text: "Начать"
             Layout.alignment: Qt.AlignHCenter
             onClicked: { //при жмаке кнопке начать ведущий скрывает кнопку и отправляем на сервер сообщ о начале игры
-                if (thisPlayerNum == 0) {
+                if (thisPlayerNum == 0) { //онли ведущий может переключ очередь игрока при афк
                     text = "Сменить игрока"
                 } else {
                     visible = false
