@@ -111,11 +111,11 @@ ApplicationWindow {
         url: "ws://195.135.253.4:8080"
         // url: "ws://192.168.3.69:8080"
         // url: "ws://192.168.224.242:8080"
-        onTextMessageReceived: function(message) {
+        onTextMessageReceived: function(message) { //на сообщение от сервера 
             // connectionLbl.text = "Received message: " + message.slice(0, 10)
             console.log(message)
 
-            const str = message.toString().split(": ")
+            const str = message.toString().split(": ") //сообщение разделяем на оп - операция и msg - сообщение
             const op = str[0]
             const msg = str[1] || ""
 
@@ -126,14 +126,14 @@ ApplicationWindow {
                 break;
             }
             case "questions": {
-                questions = JSON.parse(msg)
+                questions = JSON.parse(msg) //например если вопросы надо парс объекта сделать этого
                 break;
             }
             case "this": {
                 thisPlayerNum = parseInt(msg)
                 break;
             }
-            case "current": {
+            case "current": { //принимаем номер игрока текущего
                 currentMove = parseInt(msg)
                 console.log("current: " + currentMove)
                 if (stack.depth > 2) {
@@ -149,7 +149,7 @@ ApplicationWindow {
 
                 break;
             }
-            case "qstn": {
+            case "qstn": { //принимает индекс категории вопроса и из глоб перемен записывается
                 const cat = parseInt(msg.split("_")[0])
                 const qstn = parseInt(msg.split("_")[1])
 
@@ -158,7 +158,7 @@ ApplicationWindow {
                 selectedQstn = questions[cat]["questions"][qstn]["text"]
                 selectedAns = questions[cat]["questions"][qstn]["answer"]
 
-                stack.push(qstnPage)
+                stack.push(qstnPage)//кидает всех игроков на страницу вопроса после отправки сервера индексов игрокам
                 break;
             }
 
