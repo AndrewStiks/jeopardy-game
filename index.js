@@ -17,7 +17,7 @@ wss.on('connection', function connection(ws) {
 
     switch(op) {
       case "new": {
-        const newCode = generateGameCode()
+        const newCode = generateGameCode() //создаём новую игру и отправляем код игры клиенту
         const game = {
           code: newCode,
           players: new Set([ws]),
@@ -26,12 +26,12 @@ wss.on('connection', function connection(ws) {
         console.log("new game: " + newCode)
         games.push(game)
         console.log("games")
-        ws.send("code: " + newCode)
+        ws.send("code: " + newCode) // вот тут отправка
         ws.send("questions: " + JSON.stringify(questions))
         ws.send("this: " + 0)
         break;
       }
-      case "connect": {
+      case "connect": { //  пытаемся подключ к игре 
         const gameCode = msg.trim().toUpperCase()
         console.log("code: " + gameCode)
 
@@ -46,13 +46,13 @@ wss.on('connection', function connection(ws) {
           console.log(games)
           ws.send("code: " + gameCode)
           ws.send("questions: " + JSON.stringify(questions))
-          ws.send("this: " + Array.from(games[idx].players).indexOf(ws))
+          ws.send("this: " + Array.from(games[idx].players).indexOf(ws)) // подключаемся к игре и получаем номер игрока от сервака
         } else {
           ws.send("error")
         }
         break;
       }
-      case "start": {
+      case "start": { // сообщаем о начале игры и текущ ходе
         const gameCode = msg.trim().toUpperCase()
         console.log("code: " + gameCode)
 
@@ -68,7 +68,7 @@ wss.on('connection', function connection(ws) {
           const currentMove = Array.from(games[idx].players).indexOf(Array.from(playersCopy)[Math.floor(Math.random()*playersCopy.size)])
           games[idx].currentMove = currentMove
           // ws.send("current: " + currentMove)
-	  Array.from(games[idx].players).forEach(x => {
+	  Array.from(games[idx].players).forEach(x => { //сервак посылает всем подкл клеинтам чей щас ход
             x.send("current: " + currentMove)
           })
           // new Set().size
@@ -89,7 +89,7 @@ wss.on('connection', function connection(ws) {
 		  const cat = parseInt(msg.split("_")[1])
 		  const qstn = parseInt(msg.split("_")[2])
 
-          Array.from(games[idx].players).forEach(x => {
+          Array.from(games[idx].players).forEach(x => { // рассылаем инфу о выбранном вопросе  в виде категории и вопроса
             x.send("qstn: " + cat + "_" + qstn)
           })
         } else {
