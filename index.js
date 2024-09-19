@@ -11,7 +11,7 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function message(data) {
     console.log('received: %s', data);
 
-    const str = data.toString().split(":")
+    const str = data.toString().split(": ")
     const op = str[0]
     const msg = str[1] || ""
 
@@ -74,15 +74,28 @@ wss.on('connection', function connection(ws) {
         }
         break;
       }
+	  case "qstn": {
+        const gameCode = msg.split("_")[0].trim().toUpperCase()
+        console.log("code: " + gameCode)
+
+        const search = games.filter(x => x.code == gameCode)
+        const idx = games.indexOf(search[0])
+        if (search.length > 0) {
+          console.log("Game found: " + gameCode + ", idx: " + idx)
+		  
+		  const cat = parseInt(msg.split("_")[1])
+		  const qstn = parseInt(msg.split("_")[2])
+
+          Array.from(games[idx].players).forEach(x => {
+            x.send("qstn: " + cat + "_" + qstn)
+          })
+        } else {
+          ws.send("error")
+        }
+        break;
+      }
       default:
         console.log(op, msg)
-    }
-
-    if (data.includes('start')) {
-      
-    }
-    if (data.includes('connect: ')) {
-      
     }
   });
 
