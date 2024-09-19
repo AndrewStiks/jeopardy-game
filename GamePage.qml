@@ -17,44 +17,49 @@ Page {
     footer: ColumnLayout {
         width: parent.width
 
-        Row {
+        Button {
+            visible: true
+            enabled: players.count > 2
+            text: "Начать"
             Layout.alignment: Qt.AlignHCenter
-            // anchors.horizontalCenter: parent.horizontalCenter
-
-            Button {
-                text: "Начать"
-                onClicked: socket.sendTextMessage("start: " + code)
+            onClicked: {
+                if (thisPlayerNum == 0) {
+                    text = "Сменить игрока"
+                } else {
+                    visible = false
+                }
+                socket.sendTextMessage("start: " + code)
             }
         }
 
         ListView {
-                width: parent.width
-                height: 100
-                model: players
-                delegate: Rectangle {
-                    width: 100; height: 100
-                    color: colors[playerId]
+            width: parent.width
+            height: 100
+            model: players
+            delegate: Rectangle {
+                width: 100; height: 100
+                color: colors[playerId]
 
-                    border.color: "yellow"
-                    border.width: playerId == thisPlayerNum ? 3 : 0
+                border.color: "yellow"
+                border.width: playerId == thisPlayerNum ? 3 : 0
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: playerName.toUpperCase()
-                        font.pointSize: 26
-                    }
-
-                    Rectangle {
-                        visible: playerId == currentMove
-                        width: 100
-                        height: 10
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                    }
+                Text {
+                    anchors.centerIn: parent
+                    text: playerName.toUpperCase()
+                    font.pointSize: 26
                 }
-                spacing: (parent.width - players.count * 100) / (players.count - 1)
-                orientation: Qt.Horizontal
+
+                Rectangle {
+                    visible: playerId == currentMove
+                    width: 100
+                    height: 10
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                }
             }
+            spacing: (parent.width - players.count * 100) / (players.count - 1)
+            orientation: Qt.Horizontal
+        }
     }
 
     ColumnLayout {
@@ -70,14 +75,11 @@ Page {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        GridLayout {
-            columns: 4
-            Repeater {
-                id: catRep
-                model: categories
-                delegate: Repeater {
-                    id: qstnRep
-                    model: qstnNum + 1
+        RowLayout {
+            ColumnLayout {
+                Repeater {
+                    id: catRep
+                    model: categories
                     delegate: Rectangle {
                         border.color: "white"
                         border.width: 2
@@ -86,7 +88,7 @@ Page {
                         width: 100
                         height: 100
                         Text {
-                            text: qstn
+                            text: questions[index]["category"]
                             horizontalAlignment: Qt.AlignHCenter
                             anchors.centerIn: parent
                             font.pointSize: 26
@@ -94,31 +96,39 @@ Page {
                         }
                     }
                 }
+
+            }
+            GridLayout {
+                columns: 3
+                Repeater {
+                    id: qstnRep
+                    model: qstnNum * 3
+                    delegate: Rectangle {
+                        border.color: "white"
+                        border.width: 2
+                        property string qstn: ""
+                        color: "transparent"
+                        width: 100
+                        height: 100
+                        Text {
+                            text: questions[Math.floor(index / 3)]["questions"][index % 3]["cost"]
+                            horizontalAlignment: Qt.AlignHCenter
+                            anchors.centerIn: parent
+                            font.pointSize: 26
+                            color: "white"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: currentMove == thisPlayerNum
+                            onClicked: {
+                                socket.sendTextMessage("qstn: " + code + "_" + Math.floor(index / 3) + "_" + index % 3)
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        Button {
-            text: "Back"
-            onClicked: {
-                stack.pop()
-                players.clear()
-                players.append({
-                                   playerId: 0,
-                                   playerName: "Вед"
-                               })
-            }
-
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-    }
-
-    function populateGrid() {
-        for (let i = 0; i < categories; i++) {
-            catRep.itemAt(i).itemAt(0).qstn = questions[i]["category"]
-            for (let j = 1; j < qstnNum + 1; j++) {
-                catRep.itemAt(i).itemAt(j).qstn = questions[i]["questions"][j - 1]["cost"]
-            }
-        }
     }
 }

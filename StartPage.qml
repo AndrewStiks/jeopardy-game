@@ -21,22 +21,22 @@ Page {
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
             color: "white"
-            font.pointSize: 50
+            font.pointSize: 70
         }
 
         TextField {
             id: codeInput
-            width: 800
             Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: parent.width / 2
+            Layout.preferredWidth: parent.width / 3
             color: "white"
             placeholderText: "Введите код"
             placeholderTextColor: "white"
         }
 
         Button {
-            id: myButton
+            id: joinBtn
             text: "Присоединиться"
+            Layout.preferredWidth: parent.width / 3
             enabled: codeInput.text.length > 0
             onClicked: {
                 console.log("Joining game with code: " + codeInput.text)
@@ -47,9 +47,9 @@ Page {
 
             Layout.alignment: Qt.AlignHCenter
             contentItem: Text {
-                text: myButton.text
+                text: joinBtn.text
                 color: "red"  // Set the text color here
-                font: myButton.font
+                font: joinBtn.font
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
@@ -58,10 +58,11 @@ Page {
 
         Button {
             text: "Новая игра"
+            Layout.preferredWidth: parent.width / 3
             enabled: socket.status == WebSocket.Open
             onClicked: {
                 if (socket.status == WebSocket.Open) {
-                    socket.sendTextMessage("new:")
+                    socket.sendTextMessage("new: ")
                 }
             }
 

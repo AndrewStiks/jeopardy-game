@@ -15,6 +15,15 @@ ApplicationWindow {
     font.family: "Futura Condensed PT"
     font.pointSize: 20
 
+    onClosing: {
+        if(stack.depth > 1){
+            close.accepted = false
+            stack.pop();
+        }else{
+            return;
+        }
+    }
+
     background: Rectangle {
         anchors.fill: parent
         gradient: Gradient {
@@ -46,6 +55,11 @@ ApplicationWindow {
     property int thisPlayerNum: 0
     property int currentMove: 0
 
+    property string selectedCat: ""
+    property int selectedCost: 0
+    property string selectedQstn: ""
+    property string selectedAns: ""
+
 
     ListModel {
         id: players
@@ -58,32 +72,36 @@ ApplicationWindow {
     StartPage {
         id: startPage
     }
-    GamePage {
+    Component {
         id: gamePage
-        visible: false
+        GamePage {
+        }
+    }
+    Component {
+        id: qstnPage
+        QstnPage {
+        }
     }
 
-    Row {
-        spacing: 10
+    RowLayout {
         anchors.bottom: parent.bottom
-        Label {
-            id: connectionLbl
-            text: socket.status == WebSocket.Open ? "connected" : "disconnected"
-        }
-        Rectangle {
-            id: connectionInd
-            color: socket.status == WebSocket.Open ? "green" : "red"
-            width: 10
-            height: 10
-            radius: 5
-        }
+        width: parent.width
         Button {
-            text: "Connect"
+            id: connectBtn
+            text: socket.active ? "Reconnect" : "Connect"
+            Layout.alignment: Qt.AlignHCenter
+
+            contentItem: Text {
+                text: connectBtn.text
+                color: socket.active ? "green" : "red"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font: connectBtn.font
+            }
+
             onClicked: {
-                if (socket.active) {
-                    socket.active = false
-                    socket.active = true
-                }
+                socket.active = false
+                socket.active = true
             }
         }
     }
@@ -92,23 +110,23 @@ ApplicationWindow {
         id: socket
         url: "ws://195.135.253.4:8080"
         // url: "ws://192.168.3.69:8080"
+        // url: "ws://192.168.224.242:8080"
         onTextMessageReceived: function(message) {
-            connectionLbl.text = "Received message: " + message.slice(0, 10)
+            // connectionLbl.text = "Received message: " + message.slice(0, 10)
             console.log(message)
 
-            const str = message.toString().split(":")
+            const str = message.toString().split(": ")
             const op = str[0]
             const msg = str[1] || ""
 
             switch(op) {
             case "code": {
-                code = message.split("code: ")[1]
+                code = msg
                 stack.push(gamePage)
                 break;
             }
             case "questions": {
-                questions = JSON.parse(message.split("questions: ")[1])
-                gamePage.populateGrid()
+                questions = JSON.parse(msg)
                 break;
             }
             case "this": {
@@ -117,7 +135,11 @@ ApplicationWindow {
             }
             case "current": {
                 currentMove = parseInt(msg)
-                console.log(currentMove)
+                console.log("current: " + currentMove)
+                if (stack.depth > 2) {
+                    stack.pop()
+                }
+
                 break;
             }
             case "players": {
@@ -127,6 +149,18 @@ ApplicationWindow {
 
                 break;
             }
+            case "qstn": {
+                const cat = parseInt(msg.split("_")[0])
+                const qstn = parseInt(msg.split("_")[1])
+
+                selectedCat = questions[cat]["category"]
+                selectedCost = questions[cat]["questions"][qstn]["cost"]
+                selectedQstn = questions[cat]["questions"][qstn]["text"]
+                selectedAns = questions[cat]["questions"][qstn]["answer"]
+
+                stack.push(qstnPage)
+                break;
+            }
 
             default:
                 console.log(op, msg)
@@ -134,10 +168,12 @@ ApplicationWindow {
         }
         onStatusChanged: if (socket.status == WebSocket.Error) {
                              console.log("Error: " + socket.errorString)
+                             socket.active = false
                          } else if (socket.status == WebSocket.Open) {
                              socket.sendTextMessage("Hello World")
                          } else if (socket.status == WebSocket.Closed) {
-                             connectionLbl.text += "\nSocket closed"
+                             // connectionLbl.text += "\nSocket closed"
+                             socket.active = false
                          }
         active: true
     }
