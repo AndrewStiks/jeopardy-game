@@ -51,6 +51,7 @@ Page {
 
         anchors.centerIn: parent
         spacing: 20
+        width: parent.width
 
         Text {
             text: selectedCat
@@ -59,6 +60,7 @@ Page {
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
             wrapMode: Text.WordWrap
+            Layout.preferredWidth: parent.width
         }
 
         Text {
@@ -77,6 +79,7 @@ Page {
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
             wrapMode: Text.WordWrap
+            Layout.preferredWidth: parent.width
         }
 
         Text {
@@ -87,6 +90,7 @@ Page {
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
             wrapMode: Text.WordWrap
+            Layout.preferredWidth: parent.width
         }
 
         Button {
