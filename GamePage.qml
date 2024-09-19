@@ -22,7 +22,7 @@ Page {
             enabled: players.count > 2
             text: "Начать"
             Layout.alignment: Qt.AlignHCenter
-            onClicked: {
+            onClicked: { //при жмаке кнопке начать ведущий скрывает кнопку и отправляем на сервер сообщ о начале игры
                 if (thisPlayerNum == 0) {
                     text = "Сменить игрока"
                 } else {
@@ -32,7 +32,7 @@ Page {
             }
         }
 
-        ListView {
+        ListView { //отображение игроков  рамка для текущ игрока и его имени
             width: parent.width
             height: 100
             model: players
@@ -62,7 +62,7 @@ Page {
         }
     }
 
-    ColumnLayout {
+    ColumnLayout { 
 
         anchors.centerIn: parent
         spacing: 20
@@ -77,7 +77,7 @@ Page {
 
         RowLayout {
             ColumnLayout {
-                Repeater {
+                Repeater { // повторяем для категорий в игре параметры ДИНАМИЧЕСКОЕ СОЗДАНИЕ. и отправка после клика на сервер
                     id: catRep
                     model: categories
                     delegate: Rectangle {
@@ -100,7 +100,7 @@ Page {
                 }
 
             }
-            GridLayout {
+            GridLayout { // сетка с вопросами 
                 columns: 3
                 Repeater {
                     id: qstnRep
@@ -120,7 +120,7 @@ Page {
                             color: "white"
                         }
 
-                        MouseArea {
+                        MouseArea { // отобр вопроса и оболасть клика для выбора
                             anchors.fill: parent
                             enabled: currentMove == thisPlayerNum
                             onClicked: {
