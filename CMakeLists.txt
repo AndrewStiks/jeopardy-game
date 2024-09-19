@@ -22,6 +22,7 @@ qt_add_qml_module(appClickerTest
         QML_FILES StartPage.qml
         QML_FILES GamePage.qml
         RESOURCES font/futura.otf
+        QML_FILES QstnPage.qml
 )
 
 qt_add_resources(appClickerTest "app_font"

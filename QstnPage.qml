@@ -58,6 +58,7 @@ Page {
             color: "white"
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         Text {
@@ -66,6 +67,7 @@ Page {
             color: "white"
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         Text {
@@ -74,6 +76,7 @@ Page {
             color: "white"
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         Text {
@@ -83,6 +86,7 @@ Page {
             color: "white"
             horizontalAlignment: Qt.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         Button {

@@ -93,6 +93,8 @@ Page {
                             anchors.centerIn: parent
                             font.pointSize: 26
                             color: "white"
+                            width: 100
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
