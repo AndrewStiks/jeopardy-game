@@ -98,7 +98,7 @@ Page {
             text: "Ответить"
             onClicked: {
                 stack.pop()
-                socket.sendTextMessage("start: " + code)
+                socket.sendTextMessage("start: " + code) // на сервка сообщ приходит - высчит номер след игрока посылаем обратно и обратно перекидываем игроков. ибо страница глубины 3
             }
         }
     }
