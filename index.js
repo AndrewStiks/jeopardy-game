@@ -68,9 +68,13 @@ wss.on('connection', function connection(ws) {
           if (masterMove == "skip") {
 
           } else if (masterMove == "yes") {
-
+            games[idx].players.forEach(x => {
+              x.send("score: add")
+            })
           } else if (masterMove == "no") {
-
+            games[idx].players.forEach(x => {
+              x.send("score: remove")
+            })
           }
 
           const playersCopy = new Set(games[idx].players)
@@ -81,9 +85,9 @@ wss.on('connection', function connection(ws) {
           games[idx].currentMove = currentMove
 
           games[idx].players.forEach(x => {
-            ws.send("current: " + currentMove)
+            x.send("current: " + currentMove)
           })
-          
+
           // new Set().size
         } else {
           ws.send("error")
