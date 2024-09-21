@@ -59,6 +59,7 @@ ApplicationWindow {
     property int selectedCost: 0
     property string selectedQstn: ""
     property string selectedAns: ""
+    property string playersAnswer: ""
 
 
     ListModel {
@@ -66,6 +67,7 @@ ApplicationWindow {
         ListElement {
             playerId: 0
             playerName: "Вед"
+            playerScore: 0
         }
     }
 
@@ -111,6 +113,7 @@ ApplicationWindow {
         url: "ws://195.135.253.4:8080"
         // url: "ws://192.168.3.69:8080"
         // url: "ws://192.168.224.242:8080"
+        // url: "ws://cors.yiff.fi:8080"
         onTextMessageReceived: function(message) {
             // connectionLbl.text = "Received message: " + message.slice(0, 10)
             console.log(message)
@@ -159,6 +162,18 @@ ApplicationWindow {
                 selectedAns = questions[cat]["questions"][qstn]["answer"]
 
                 stack.push(qstnPage)
+                break;
+            }
+            case "answer": {
+                playersAnswer = msg;
+                break;
+            }
+            case "score": {
+                if (msg == "yes") {
+                    players.get(currentMove).playerScore += selectedCost
+                } else {
+                    players.get(currentMove).playerScore -= selectedCost
+                }
                 break;
             }
 

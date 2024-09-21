@@ -12,13 +12,14 @@ Page {
     }
 
     property var colors: ["#5BC0EB", "#FDE74C", "#9BC53D", "#C3423F"]
+    property int cellWidth: (width - 30) / 4
 
 
     footer: ColumnLayout {
         width: parent.width
 
         Button {
-            visible: true
+            visible: thisPlayerNum == 0
             enabled: players.count > 2
             text: "Начать"
             Layout.alignment: Qt.AlignHCenter
@@ -28,36 +29,45 @@ Page {
                 } else {
                     visible = false
                 }
-                socket.sendTextMessage("start: " + code)
+                socket.sendTextMessage("next: " + code + "_skip")
             }
         }
 
         ListView {
             width: parent.width
-            height: 100
+            height: cellWidth
             model: players
             delegate: Rectangle {
-                width: 100; height: 100
+                width: cellWidth; height: width
                 color: colors[playerId]
 
-                border.color: "yellow"
+                border.color: "magenta"
                 border.width: playerId == thisPlayerNum ? 3 : 0
 
-                Text {
+                Column {
                     anchors.centerIn: parent
-                    text: playerName.toUpperCase()
-                    font.pointSize: 26
+                    Text {
+                        text: playerName.toUpperCase()
+                        font.pointSize: 26
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    Text {
+                        visible: playerName.toUpperCase() !== "ВЕД"
+                        text: playerScore
+                        font.pointSize: 16
+                        horizontalAlignment: Text.AlignHCenter
+                    }
                 }
 
                 Rectangle {
                     visible: playerId == currentMove
-                    width: 100
+                    width: cellWidth
                     height: 10
                     anchors.bottom: parent.bottom
                     anchors.left: parent.left
                 }
             }
-            spacing: (parent.width - players.count * 100) / (players.count - 1)
+            spacing: (parent.width - players.count * cellWidth) / (players.count - 1)
             orientation: Qt.Horizontal
         }
     }
@@ -75,6 +85,13 @@ Page {
             Layout.alignment: Qt.AlignHCenter
         }
 
+        Text {
+            text: cellWidth
+            font.pointSize: 30
+            horizontalAlignment: Qt.AlignHCenter
+            Layout.alignment: Qt.AlignHCenter
+        }
+
         RowLayout {
             ColumnLayout {
                 Repeater {
@@ -85,15 +102,15 @@ Page {
                         border.width: 2
                         property string qstn: ""
                         color: "transparent"
-                        width: 100
-                        height: 100
+                        width: cellWidth
+                        height: width
                         Text {
                             text: questions[index]["category"]
                             horizontalAlignment: Qt.AlignHCenter
                             anchors.centerIn: parent
                             font.pointSize: 26
                             color: "white"
-                            width: 100
+                            width: cellWidth
                             wrapMode: Text.WordWrap
                         }
                     }
@@ -110,8 +127,8 @@ Page {
                         border.width: 2
                         property string qstn: ""
                         color: "transparent"
-                        width: 100
-                        height: 100
+                        width: cellWidth
+                        height: width
                         Text {
                             text: questions[Math.floor(index / 3)]["questions"][index % 3]["cost"]
                             horizontalAlignment: Qt.AlignHCenter
