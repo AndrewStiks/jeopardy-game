@@ -15,12 +15,12 @@ wss.on('connection', function connection(ws) {
     const op = str[0]
     const msg = str[1] || ""
 
-    switch(op) {
+    switch (op) {
       case "new": {
         const newCode = generateGameCode()
         const game = {
           code: newCode,
-          players: new Set([ws]),
+          players: [ws],
           currentMove: 0
         }
         console.log("new game: " + newCode)
@@ -39,42 +39,22 @@ wss.on('connection', function connection(ws) {
         const idx = games.indexOf(search[0])
         if (search.length > 0) {
           console.log("Game found: " + gameCode + ", idx: " + idx)
-          games[idx].players.add(ws)
-          Array.from(games[idx].players).forEach(x => {
-            x.send("players: " + Array.from(games[idx].players).length)
+          if (games[idx].players.indexOf(ws) == -1) {
+            games[idx].players.push(ws)
+          }
+          games[idx].players.forEach(x => {
+            x.send("players: " + games[idx].players.length)
           })
           console.log(games)
           ws.send("code: " + gameCode)
           ws.send("questions: " + JSON.stringify(questions))
-          ws.send("this: " + Array.from(games[idx].players).indexOf(ws))
+          ws.send("this: " + games[idx].players.indexOf(ws))
         } else {
           ws.send("error")
         }
         break;
       }
-      case "start": {
-        const gameCode = msg.trim().toUpperCase()
-        console.log("code: " + gameCode)
-
-        const search = games.filter(x => x.code == gameCode)
-        const idx = games.indexOf(search[0])
-        if (search.length > 0) {
-          console.log("Game found: " + gameCode + ", idx: " + idx)
-
-          const playersCopy = new Set(games[idx].players)
-          playersCopy.delete(Array.from(games[idx].players)[0])
-          playersCopy.delete(Array.from(games[idx].players)[games[idx].currentMove])
-
-          const currentMove = Array.from(games[idx].players).indexOf(Array.from(playersCopy)[Math.floor(Math.random()*playersCopy.size)])
-          games[idx].currentMove = currentMove
-          ws.send("current: " + currentMove)
-          // new Set().size
-        } else {
-          ws.send("error")
-        }
-        break;
-      }
-	  case "qstn": {
+      case "next": {
         const gameCode = msg.split("_")[0].trim().toUpperCase()
         console.log("code: " + gameCode)
 
@@ -82,12 +62,67 @@ wss.on('connection', function connection(ws) {
         const idx = games.indexOf(search[0])
         if (search.length > 0) {
           console.log("Game found: " + gameCode + ", idx: " + idx)
-		  
-		  const cat = parseInt(msg.split("_")[1])
-		  const qstn = parseInt(msg.split("_")[2])
 
-          Array.from(games[idx].players).forEach(x => {
+          const masterMove = parseInt(msg.split("_")[1])
+
+          if (masterMove == "skip") {
+
+          } else if (masterMove == "yes") {
+
+          } else if (masterMove == "no") {
+
+          }
+
+          const playersCopy = new Set(games[idx].players)
+          playersCopy.delete(games[idx].players[0])
+          playersCopy.delete(games[idx].players[games[idx].currentMove])
+
+          const currentMove = games[idx].players.indexOf(Array.from(playersCopy)[Math.floor(Math.random() * playersCopy.size)])
+          games[idx].currentMove = currentMove
+
+          games[idx].players.forEach(x => {
+            ws.send("current: " + currentMove)
+          })
+          
+          // new Set().size
+        } else {
+          ws.send("error")
+        }
+        break;
+      }
+      case "qstn": {
+        const gameCode = msg.split("_")[0].trim().toUpperCase()
+        console.log("code: " + gameCode)
+
+        const search = games.filter(x => x.code == gameCode)
+        const idx = games.indexOf(search[0])
+        if (search.length > 0) {
+          console.log("Game found: " + gameCode + ", idx: " + idx)
+
+          const cat = parseInt(msg.split("_")[1])
+          const qstn = parseInt(msg.split("_")[2])
+
+          games[idx].players.forEach(x => {
             x.send("qstn: " + cat + "_" + qstn)
+          })
+        } else {
+          ws.send("error")
+        }
+        break;
+      }
+      case "answer": {
+        const gameCode = msg.split("_")[0].trim().toUpperCase()
+        console.log("code: " + gameCode)
+
+        const search = games.filter(x => x.code == gameCode)
+        const idx = games.indexOf(search[0])
+        if (search.length > 0) {
+          console.log("Game found: " + gameCode + ", idx: " + idx)
+
+          const answer = parseInt(msg.split("_")[1])
+
+          games[idx].players.forEach(x => {
+            x.send("answer: " + answer)
           })
         } else {
           ws.send("error")
@@ -111,7 +146,7 @@ function generateGameCode() {
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let text = "";
   for (let i = 0; i < 4; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
 }
