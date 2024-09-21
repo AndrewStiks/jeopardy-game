@@ -118,7 +118,7 @@ ApplicationWindow {
             // connectionLbl.text = "Received message: " + message.slice(0, 10)
             console.log(message)
 
-            const str = message.toString().split(": ")
+            const str = message.toString().split(": ") //сообщение разделяем на оп - операция и msg - сообщение
             const op = str[0]
             const msg = str[1] || ""
 
@@ -129,17 +129,17 @@ ApplicationWindow {
                 break;
             }
             case "questions": {
-                questions = JSON.parse(msg)
+                questions = JSON.parse(msg) //например если вопросы надо парс объекта сделать этого
                 break;
             }
             case "this": {
                 thisPlayerNum = parseInt(msg)
                 break;
             }
-            case "current": {
+            case "current": { //принимаем номер игрока текущего
                 currentMove = parseInt(msg)
                 console.log("current: " + currentMove)
-                if (stack.depth > 2) {
+                if (stack.depth > 2) { //глубина стека 3 если 
                     stack.pop()
                 }
 
@@ -152,7 +152,7 @@ ApplicationWindow {
 
                 break;
             }
-            case "qstn": {
+            case "qstn": { //принимает индекс категории вопроса и из глоб перемен записывается
                 const cat = parseInt(msg.split("_")[0])
                 const qstn = parseInt(msg.split("_")[1])
 
