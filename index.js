@@ -63,7 +63,7 @@ wss.on('connection', function connection(ws) {
         if (search.length > 0) {
           console.log("Game found: " + gameCode + ", idx: " + idx)
 
-          const masterMove = parseInt(msg.split("_")[1])
+          const masterMove = msg.split("_")[1]
 
           if (masterMove == "skip") {
 
