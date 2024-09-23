@@ -169,7 +169,7 @@ ApplicationWindow {
                 break;
             }
             case "score": {
-                if (msg == "yes") {
+                if (msg == "add") {
                     players.get(currentMove).playerScore += selectedCost
                 } else {
                     players.get(currentMove).playerScore -= selectedCost
