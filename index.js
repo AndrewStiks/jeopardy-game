@@ -123,7 +123,7 @@ wss.on('connection', function connection(ws) {
         if (search.length > 0) {
           console.log("Game found: " + gameCode + ", idx: " + idx)
 
-          const answer = parseInt(msg.split("_")[1])
+          const answer = msg.split("_")[1]
 
           games[idx].players.forEach(x => {
             x.send("answer: " + answer)
